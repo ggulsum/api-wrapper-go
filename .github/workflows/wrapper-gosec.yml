@@ -1,19 +1,17 @@
-name: Go Build and Gosec
+name: Gosec Analysis
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 jobs:
-  build:
+  gosec:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Check out code
       uses: actions/checkout@v2
 
     - name: Set up Go
@@ -21,10 +19,16 @@ jobs:
       with:
         go-version: '1.22'
 
-    - name: Install Gosec
-      run: |
-        go install github.com/securego/gosec/v2/cmd/gosec@latest
-        echo "$HOME/go/bin" >> $GITHUB_PATH
+    - name: Cache Go modules
+      uses: actions/cache@v2
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
 
-    - name: Run Gosec
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run gosec
       run: gosec ./...
