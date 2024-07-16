@@ -30,5 +30,8 @@ jobs:
     - name: Install dependencies
       run: go mod download
 
+    - name: Install gosec
+      run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
     - name: Run gosec
-      run: gosec ./...
+      run: ~/go/bin/gosec ./...
